@@ -39,6 +39,7 @@ class GAN():
 
         # training parameters
         self.batch_size = 256
+        self.steps = 0
 
     def make_generator_model(self):
         model = tf.keras.Sequential()
@@ -127,12 +128,16 @@ class GAN():
         self.discriminator_optimizer.apply_gradients(zip(gradients_of_discriminator,
                                                          self.discriminator_model.trainable_variables))
 
+        self.steps += 1
+
     def train(self, dataset, epochs):
         for epoch in range(epochs):
             start = time.time()
 
             for image_batch in dataset:
                 self.train_step(image_batch)
+                if self.steps % 100 == 0:
+                    print("Completed {0} training steps".format(self.steps))
 
             # Produce images for the GIF as we go
             display.clear_output(wait=True)
@@ -152,5 +157,5 @@ class GAN():
                                  epochs,
                                  seed)
 
-    def set_batch_size(self, batch_size=256):
+    def set_batch_size(self, batch_size):
         self.batch_size = batch_size
