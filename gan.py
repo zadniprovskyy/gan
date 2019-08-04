@@ -136,7 +136,7 @@ class GAN():
                 self.train_step(image_batch)
                 cur_train_steps_num += 1
                 if cur_train_steps_num % log_freq == 0:
-                    print("Completed {0} training steps".format(cur_train_steps_num))
+                    print("Completed {0} training steps with batch shape {1}".format(cur_train_steps_num, image_batch.shape))
 
             # Produce images for the GIF as we go
             display.clear_output(wait=True)
