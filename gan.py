@@ -10,11 +10,8 @@ import time
 
 from IPython import display
 
-EPOCHS = 50
 noise_dim = 100
 num_examples_to_generate = 16
-BUFFER_SIZE = 60000
-BATCH_SIZE = 256
 
 # This method returns a helper function to compute cross entropy loss
 cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
@@ -39,6 +36,9 @@ class GAN():
                                          discriminator_optimizer=self.discriminator_optimizer,
                                          generator=self.generator_model,
                                          discriminator=self.discriminator_model)
+
+        # training parameters
+        self.batch_size = 256
 
     def make_generator_model(self):
         model = tf.keras.Sequential()
@@ -109,7 +109,7 @@ class GAN():
     @tf.function
     def train_step(self, images):
 
-        noise = tf.random.normal([BATCH_SIZE, noise_dim])
+        noise = tf.random.normal([self.batch_size, noise_dim])
 
         with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
           generated_images = self.generator_model(noise, training=True)
@@ -133,7 +133,6 @@ class GAN():
 
             for image_batch in dataset:
                 self.train_step(image_batch)
-                print("Completed train_step")
 
             # Produce images for the GIF as we go
             display.clear_output(wait=True)
@@ -153,21 +152,5 @@ class GAN():
                                  epochs,
                                  seed)
 
-
-if __name__=='__main__':
-
-    # Initialize GAN model (create generator, discriminator and their optimizers)
-    gan = GAN()
-
-    # Load training data
-    (train_images, train_labels), (_, _) = tf.keras.datasets.mnist.load_data()
-    # reshape training images
-    train_images = train_images.reshape(train_images.shape[0], 28, 28, 1).astype('float32')
-    # normalize training images to [-1, 1]
-    train_images = (train_images - 127.5) / 127.5
-
-    # Batch and shuffle the data
-    train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
-
-    gan.train(train_dataset, 1)
-
+    def set_batch_size(self, batch_size=256):
+        self.batch_size = batch_size
