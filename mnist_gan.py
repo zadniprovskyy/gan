@@ -6,12 +6,7 @@ BATCH_SIZE = 256
 BUFFER_SIZE = 60000
 EPOCHS = 1
 
-
 if __name__=='__main__':
-
-    # Initialize GAN model (create generator, discriminator and their optimizers)
-    gan = GAN()
-
     # Load training data
     (train_images, train_labels), (_, _) = tf.keras.datasets.mnist.load_data()
     # reshape training images
@@ -22,4 +17,8 @@ if __name__=='__main__':
     # Batch and shuffle the data
     train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
 
+    # Initialize GAN model (create generator, discriminator and their optimizers)
+    gan = GAN()
+    # set batch size before training
+    gan.set_batch_size(batch_size=BATCH_SIZE)
     gan.train(train_dataset, EPOCHS)

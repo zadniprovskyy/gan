@@ -12,7 +12,6 @@ from IPython import display
 
 noise_dim = 100
 num_examples_to_generate = 16
-BATCH_SIZE = 256
 
 # This method returns a helper function to compute cross entropy loss
 cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
@@ -39,7 +38,7 @@ class GAN():
                                          discriminator=self.discriminator_model)
 
         # training parameters
-        self.batch_size = 256
+        self.batch_size = None
 
     def make_generator_model(self):
         model = tf.keras.Sequential()
@@ -110,7 +109,9 @@ class GAN():
     @tf.function
     def train_step(self, images):
 
-        noise = tf.random.normal([BATCH_SIZE, noise_dim])
+        assert self.batch_size is not None
+
+        noise = tf.random.normal([self.batch_size, noise_dim])
 
         with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
           generated_images = self.generator_model(noise, training=True)
