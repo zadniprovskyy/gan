@@ -1,2 +1,2 @@
-# mnist_gan
-Following TF Generative Adversarial Network tutorial.
+# gan
+Generative Adversarial Network model examples.
