@@ -32,10 +32,12 @@ class GAN():
         # checkpoint settings
         checkpoint_dir = './training_checkpoints'
         self.checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
-        self.checkpoint = tf.train.Checkpoint(generator_optimizer=self.generator_optimizer,
-                                         discriminator_optimizer=self.discriminator_optimizer,
-                                         generator=self.generator_model,
-                                         discriminator=self.discriminator_model)
+        self.checkpoint = tf.train.Checkpoint(
+            generator_optimizer=self.generator_optimizer,
+            discriminator_optimizer=self.discriminator_optimizer,
+            generator=self.generator_model,
+            discriminator=self.discriminator_model
+        )
 
         # training parameters
         self.batch_size = None
@@ -110,6 +112,13 @@ class GAN():
     def train_step(self, images):
 
         assert self.batch_size is not None
+
+        # images = tf.image.rgb_to_grayscale(images)
+
+        # images = tf.image.resize(
+        #     images=images,
+        #     size=[28, 28]
+        # )
 
         noise = tf.random.normal([self.batch_size, noise_dim])
 
