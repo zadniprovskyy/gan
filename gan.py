@@ -23,9 +23,23 @@ seed = tf.random.normal([num_examples_to_generate, noise_dim])
 
 class GAN():
 
-    def __init__(self):
+    def __init__(self,
+                 gen_input_shape=[28, 28, 1],
+                 noise_dim=100,
+                 ):
+
+        self.gen_input_shape = gen_input_shape
+        self.noise_dim = noise_dim
+
         self.generator_model = self.make_generator_model()
         self.discriminator_model = self.make_discriminator_model()
+
+        # output summary of both models
+        print("Generator model summary:")
+        print(self.generator_model.summary())
+        print("Discriminator model summary:")
+        print(self.discriminator_model.summary())
+
         self.generator_optimizer = tf.keras.optimizers.Adam(1e-4)
         self.discriminator_optimizer = tf.keras.optimizers.Adam(1e-4)
 
@@ -41,6 +55,9 @@ class GAN():
 
         # training parameters
         self.batch_size = None
+
+        # assert that the images are only black and white (1 channel) or colour (3 channel)
+        assert gen_input_shape[-1] in [1,3]
 
     def make_generator_model(self):
         model = tf.keras.Sequential()
@@ -61,15 +78,15 @@ class GAN():
         model.add(layers.BatchNormalization())
         model.add(layers.LeakyReLU())
 
-        model.add(layers.Conv2DTranspose(1, (5, 5), strides=(2, 2), padding='same', use_bias=False, activation='tanh'))
-        assert model.output_shape == (None, 28, 28, 1)
+        model.add(layers.Conv2DTranspose(self.gen_input_shape[2], (5, 5), strides=(2, 2), padding='same', use_bias=False, activation='tanh'))
+        assert model.output_shape == (None, self.gen_input_shape[0], self.gen_input_shape[1], self.gen_input_shape[2])
 
         return model
 
     def make_discriminator_model(self):
         model = tf.keras.Sequential()
         model.add(layers.Conv2D(64, (5, 5), strides=(2, 2), padding='same',
-                                         input_shape=[28, 28, 1]))
+                                         input_shape=self.gen_input_shape))
         model.add(layers.LeakyReLU())
         model.add(layers.Dropout(0.3))
 
@@ -100,7 +117,10 @@ class GAN():
 
       for i in range(predictions.shape[0]):
           plt.subplot(4, 4, i+1)
-          plt.imshow(predictions[i, :, :, 0] * 127.5 + 127.5, cmap='gray')
+
+          # if deal with only one colour channel
+          if self.gen_input_shape[-1] == 1:
+            plt.imshow(predictions[i, :, :, 0] * 127.5 + 127.5, cmap='gray')
           plt.axis('off')
 
       plt.savefig('image_at_epoch_{:04d}.png'.format(epoch))
