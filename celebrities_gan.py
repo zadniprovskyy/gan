@@ -3,9 +3,17 @@ import tensorflow as tf
 import pathlib
 import matplotlib.pyplot as plt
 
-def load_celebrities_dataset(preprocess_image, path="/Users/Yegor/Downloads/celebrities-100k/100k/"):
+def load_celebrities_dataset(
+        preprocess_image,
+        path="/Users/Yegor/Downloads/celebrities-100k/100k/",
+        max_size=None
+):
     data_root = pathlib.Path(path)
     all_image_paths = list(data_root.glob('*.jpg'))
+
+    if max_size is not None:
+        all_image_paths = all_image_paths[:max_size]
+
     all_image_paths = [str(path) for path in all_image_paths]
     path_ds = tf.data.Dataset.from_tensor_slices(all_image_paths)
 
